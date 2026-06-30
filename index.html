@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PocketDeck — The Handheld Game Launcher</title>
+<meta name="description" content="PocketDeck — a sleek, optimized handheld game launcher with smooth coverflow browsing, full controller navigation, and customizable themes.">
+
+<!-- Lemon Squeezy's official overlay script. Don't self-host this file —
+     Lemon Squeezy updates it server-side with security/feature fixes. -->
+<script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+
+<style>
+  :root{
+    --bg:#0b0d14; --bg2:#141826; --accent:#7c5cff; --accent2:#4fd1ff;
+    --text:#f2f3f7; --text-dim:#9aa1b4; --card:#171b29; --border:#262c3f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+  header{
+    position:sticky;top:0;z-index:10;
+    background:rgba(11,13,20,.85);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px;}
+  .brand img{width:28px;height:28px;border-radius:6px;}
+  .nav-buy a{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0b0d14;font-weight:700;text-decoration:none;
+    padding:9px 18px;border-radius:8px;font-size:14px;
+  }
+  .hero{
+    padding:90px 0 70px;text-align:center;
+    background:radial-gradient(ellipse at 50% -10%, rgba(124,92,255,.25), transparent 60%);
+  }
+  .hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-1px;}
+  .hero h1 span{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{max-width:620px;margin:18px auto 0;color:var(--text-dim);font-size:18px;}
+  .cta-row{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap;}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0b0d14;font-weight:700;text-decoration:none;
+    padding:15px 30px;border-radius:10px;font-size:16px;
+    box-shadow:0 8px 24px rgba(124,92,255,.35);
+  }
+  .btn-secondary{
+    color:var(--text);text-decoration:none;border:1px solid var(--border);
+    padding:15px 30px;border-radius:10px;font-size:16px;
+  }
+  .price-note{margin-top:14px;color:var(--text-dim);font-size:13px;}
+  section{padding:60px 0;}
+  h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:10px;}
+  .sub{text-align:center;color:var(--text-dim);max-width:560px;margin:0 auto 40px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:22px;
+  }
+  .card h3{font-size:16px;margin-bottom:8px;}
+  .card p{color:var(--text-dim);font-size:14px;}
+  .carousel{
+    position:relative;width:100%;aspect-ratio:16/10;border:1px solid var(--border);
+    border-radius:14px;overflow:hidden;margin-top:40px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45);background:var(--bg2);
+    user-select:none;
+  }
+  .carousel-track{
+    display:flex;height:100%;transition:transform .45s cubic-bezier(.4,0,.2,1);
+  }
+  .carousel-track img{
+    width:100%;height:100%;object-fit:cover;flex:0 0 100%;display:block;
+    pointer-events:none;
+  }
+  .carousel-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:42px;height:42px;border-radius:50%;border:1px solid var(--border);
+    background:rgba(11,13,20,.65);backdrop-filter:blur(4px);
+    color:var(--text);font-size:18px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;z-index:2;
+  }
+  .carousel-arrow:hover{background:rgba(11,13,20,.9);}
+  .carousel-arrow.prev{left:14px;}
+  .carousel-arrow.next{right:14px;}
+  .carousel-caption{
+    position:absolute;left:14px;bottom:14px;z-index:2;
+    background:rgba(11,13,20,.65);backdrop-filter:blur(4px);
+    border:1px solid var(--border);border-radius:8px;
+    padding:7px 12px;font-size:13px;color:var(--text-dim);
+  }
+  .carousel-dots{
+    position:absolute;right:14px;bottom:14px;z-index:2;display:flex;gap:7px;
+  }
+  .carousel-dots button{
+    width:8px;height:8px;border-radius:50%;border:none;padding:0;
+    background:rgba(255,255,255,.3);cursor:pointer;
+  }
+  .carousel-dots button.active{background:var(--accent2);}
+  .license-box{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:36px;text-align:center;max-width:560px;margin:0 auto;
+  }
+  .license-box .big{font-size:42px;font-weight:800;}
+  .license-box .big span{font-size:18px;color:var(--text-dim);font-weight:500;}
+  footer{
+    border-top:1px solid var(--border);padding:30px 0;text-align:center;
+    color:var(--text-dim);font-size:13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="brand">
+        <img src="pocketdeck-icon.png" alt="">
+        POCKETDECK
+      </div>
+      <div class="nav-buy">
+        <!-- lemon.js auto-detects any <a> with class="lemonsqueezy-button"
+             and opens it as a popup checkout overlay instead of a full
+             navigation. -->
+        <a href="https://cyberdesk.lemonsqueezy.com/checkout/buy/e5cb73d5-cbbc-4df6-a686-95c4bd609eb8?embed=1"
+           class="lemonsqueezy-button">Buy Now</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Your handheld deserves<br><span>a launcher that was built for it.</span></h1>
+    <p>PocketDeck is a fast, optimized, controller-first game launcher with real 3D coverflow browsing, automatic metadata, and a premium look — made for Steam Deck, ROG Ally, Ayaneo, and every handheld in between.</p>
+    <div class="cta-row">
+      <a href="https://cyberdesk.lemonsqueezy.com/checkout/buy/e5cb73d5-cbbc-4df6-a686-95c4bd609eb8?embed=1"
+         class="lemonsqueezy-button btn-primary">Get PocketDeck</a>
+      <a href="#features" class="btn-secondary">See features</a>
+    </div>
+    <p class="price-note">One license. 3 devices. No subscription, no time limit.</p>
+
+    <!-- Pure CSS layout + ~30 lines of vanilla JS below (no library). Each
+         slide has a data-caption used to populate .carousel-caption, so
+         captions stay in sync with whichever slide is showing. -->
+    <div class="carousel" id="shotCarousel">
+      <div class="carousel-track" id="shotTrack">
+        <img src="screenshots/coverflow-dark.png" data-caption="3D coverflow browsing - default dark theme" alt="PocketDeck 3D coverflow library browser, dark theme">
+        <img src="screenshots/coverflow-theme.png" data-caption="Custom gradient themes, applied instantly" alt="PocketDeck coverflow with a custom orange gradient theme">
+        <img src="screenshots/coverflow-white.png" data-caption="Light theme option" alt="PocketDeck coverflow with a light theme applied">
+        <img src="screenshots/browse1.png" data-caption="Browse mode - shelf view with full description, green theme" alt="PocketDeck browse mode shelf view, green theme">
+        <img src="screenshots/browse2.png" data-caption="Browse mode - shelf view with full description, blue theme" alt="PocketDeck browse mode shelf view, blue theme">
+        <img src="screenshots/game-details.png" data-caption="Full game details - artwork, synopsis, ratings, and tags" alt="PocketDeck game details panel showing artwork, synopsis, and stats">
+        <img src="screenshots/library-manager.png" data-caption="Manage Library - scan folders, auto-match, and edit games" alt="PocketDeck manage library panel with matched folders and games list">
+        <img src="screenshots/profile.png" data-caption="Profile - avatar, theme colors, and achievements" alt="PocketDeck profile panel with avatar, theme colors, and achievements">
+        <img src="screenshots/help-setup.png" data-caption="Built-in Help &amp; Setup guide" alt="PocketDeck Help and Setup panel">
+      </div>
+      <button class="carousel-arrow prev" aria-label="Previous screenshot" onclick="moveShot(-1)">&#8249;</button>
+      <button class="carousel-arrow next" aria-label="Next screenshot" onclick="moveShot(1)">&#8250;</button>
+      <div class="carousel-caption" id="shotCaption"></div>
+      <div class="carousel-dots" id="shotDots"></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Built for the device in your hands</h2>
+    <p class="sub">Not a desktop launcher with a controller bolted on — every screen is designed for it from the ground up.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Real 3D coverflow</h3>
+        <p>Smooth, physics-based scrolling through your library — not a flat carousel pretending to be 3D.</p>
+      </div>
+      <div class="card">
+        <h3>Full controller navigation</h3>
+        <p>Browse, sort, open your profile, view details, and launch — no mouse or keyboard required anywhere.</p>
+      </div>
+      <div class="card">
+        <h3>Automatic metadata</h3>
+        <p>Cover art, artwork, genres, ratings, and synopsis fetched automatically via the RAWG and IGDB APIs.</p>
+      </div>
+      <div class="card">
+        <h3>Optimized for handhelds</h3>
+        <p>A low memory footprint and tuned performance so it stays out of your way on limited hardware.</p>
+      </div>
+      <div class="card">
+        <h3>Custom themes</h3>
+        <p>Multiple curated color palettes, including gradient options, so it matches your setup.</p>
+      </div>
+      <div class="card">
+        <h3>Manual or automatic</h3>
+        <p>Prefer to enter details yourself? Full manual add/edit is built in too.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>One purchase. Three devices. Forever.</h2>
+    <div class="license-box">
+      <div class="big">$X <span>one-time</span></div>
+      <p style="margin-top:14px;color:var(--text-dim);">Activates on up to 3 devices. No subscription, no renewal, no expiration.</p>
+      <div style="margin-top:24px;">
+        <a href="https://cyberdesk.lemonsqueezy.com/checkout/buy/e5cb73d5-cbbc-4df6-a686-95c4bd609eb8?embed=1"
+           class="lemonsqueezy-button btn-primary">Get PocketDeck</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    PocketDeck &copy; 2026 — Payments securely processed by Lemon Squeezy.
+  </div>
+</footer>
+
+<script>
+(function(){
+  var track = document.getElementById('shotTrack');
+  var slides = track.querySelectorAll('img');
+  var dotsWrap = document.getElementById('shotDots');
+  var caption = document.getElementById('shotCaption');
+  var i = 0;
+
+  slides.forEach(function(_, n){
+    var d = document.createElement('button');
+    d.setAttribute('aria-label', 'Go to screenshot ' + (n + 1));
+    d.onclick = function(){ show(n); };
+    dotsWrap.appendChild(d);
+  });
+  var dots = dotsWrap.querySelectorAll('button');
+
+  function show(n){
+    i = (n + slides.length) % slides.length;
+    track.style.transform = 'translateX(-' + (i * 100) + '%)';
+    dots.forEach(function(d, n2){ d.classList.toggle('active', n2 === i); });
+    caption.textContent = slides[i].getAttribute('data-caption') || '';
+  }
+  window.moveShot = function(delta){ show(i + delta); };
+
+  // Swipe support for touch/trackpad.
+  var startX = null;
+  track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend', function(e){
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) moveShot(dx < 0 ? 1 : -1);
+    startX = null;
+  });
+
+  // Left/right arrow keys, only while the carousel is in view.
+  document.addEventListener('keydown', function(e){
+    var rect = track.getBoundingClientRect();
+    var inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (!inView) return;
+    if (e.key === 'ArrowLeft') moveShot(-1);
+    if (e.key === 'ArrowRight') moveShot(1);
+  });
+
+  // Auto-advance every 5s, pausing while the user is interacting.
+  var timer = setInterval(function(){ moveShot(1); }, 5000);
+  document.getElementById('shotCarousel').addEventListener('mouseenter', function(){ clearInterval(timer); });
+
+  show(0);
+})();
+</script>
+
+</body>
+</html>
